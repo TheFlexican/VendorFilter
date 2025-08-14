@@ -1,0 +1,12 @@
+package-as: VendorFilter
+
+move-folders:
+  VendorFilter: VendorFilter
+
+manual-changelog: CHANGELOG.md
+ignore:
+  - .vscode
+  - README.md
+  - LICENSE
+  - CHANGELOG.md
+  - .pkgmeta

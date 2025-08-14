@@ -1,0 +1,12 @@
+{
+  "files.associations": {
+    "*.toc": "ini",
+    "*.lua": "lua"
+  },
+  "Lua.diagnostics.disable": [
+    "undefined-global"
+  ],
+  "Lua.workspace.library": [
+    "/usr/share/wow/api" 
+  ]
+}
