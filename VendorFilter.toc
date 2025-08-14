@@ -1,4 +1,4 @@
-## Interface: 110002
+## Interface: 50500
 ## Title: VendorFilter
 ## Notes: Adds a dropdown to the Merchant frame to filter items by equipment slot.
 ## Author: TheFlexican
