@@ -1,5 +1,8 @@
 # Changelog
 
+## 0.1.3
+- fixed version diff between git and curse
+
 ## 0.1.2
 - Updated Interface version to 50501 for latest MoP Classic compatibility
 
