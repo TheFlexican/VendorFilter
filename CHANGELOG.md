@@ -1,5 +1,8 @@
 # Changelog
 
+## 0.1.2
+- Updated Interface version to 50501 for latest MoP Classic compatibility
+
 ## 0.1.1
 - Updated Interface to match MoP Classic release.
 
