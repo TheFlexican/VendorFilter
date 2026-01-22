@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.1.4
+- Added Shift-click to link items to chat in filter mode
+- Added Ctrl-click to preview gear in dressing room in filter mode
+
 ## 0.1.3
 - fixed version diff between git and curse
 

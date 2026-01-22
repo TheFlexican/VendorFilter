@@ -2,7 +2,7 @@
 ## Title: VendorFilter
 ## Notes: Adds a dropdown to the Merchant frame to filter items by equipment slot.
 ## Author: TheFlexican
-## Version: 0.1.3
+## Version: 0.1.4
 ## X-Category: Merchant
 ## X-Website: https://www.curseforge.com/wow/addons/vendorfilter
 ## X-License: MIT

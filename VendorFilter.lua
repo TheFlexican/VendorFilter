@@ -249,6 +249,34 @@ function VF:CreateOverlay()
     row:SetScript("OnEnter", function() if row.vendorIndex then GameTooltip:SetOwner(row, "ANCHOR_RIGHT"); GameTooltip:SetMerchantItem(row.vendorIndex); GameTooltip:Show() end end)
     row:SetScript("OnLeave", function() GameTooltip:Hide() end)
 
+    -- Handle row clicks for chat linking (Shift) and dressing room preview (Ctrl)
+    row:SetScript("OnClick", function(self, mouseButton)
+      local vIdx = row.vendorIndex
+      if not vIdx then return end
+      local link = GetMerchantItemLink(vIdx)
+      if not link then return end
+
+      -- Shift-click: insert item link into chat
+      if IsModifiedClick("CHATLINK") then
+        if ChatEdit_InsertLink then
+          ChatEdit_InsertLink(link)
+        elseif ChatFrameEditBox and ChatFrameEditBox:IsShown() then
+          ChatFrameEditBox:Insert(link)
+        end
+        return
+      end
+
+      -- Ctrl-click: open dressing room preview
+      if IsModifiedClick("DRESSUP") then
+        if DressUpItemLink then
+          DressUpItemLink(link)
+        elseif DressUpLink then
+          DressUpLink(link)
+        end
+        return
+      end
+    end)
+
     row.buy:SetScript("OnClick", function(self, mouseButton)
       local vIdx = row.vendorIndex
       if not vIdx then return end
