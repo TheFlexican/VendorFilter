@@ -25,6 +25,129 @@ VendorFilterDB = VendorFilterDB or {}
 
 VF.dynamicFilters = nil
 
+-- ============================================================
+-- Spec Filter Data
+-- Armor subClassIDs (locale-safe, matches C_Item.GetItemInfoInstant classID=4)
+-- ============================================================
+local CLOTH    = 1
+local LEATHER  = 2
+local MAIL     = 3
+local PLATE    = 4
+local ITEM_CLASS_ARMOR = 4
+
+--- All playable class/spec definitions with the armor type each spec wears.
+-- armorType = itemSubClassID: 1=Cloth, 2=Leather, 3=Mail, 4=Plate
+local SPEC_DATA = {
+  -- Warrior
+  { key="WARRIOR_ARMS",     label="Arms Warrior",          class="Warrior",      armorType=PLATE   },
+  { key="WARRIOR_FURY",     label="Fury Warrior",          class="Warrior",      armorType=PLATE   },
+  { key="WARRIOR_PROT",     label="Protection Warrior",    class="Warrior",      armorType=PLATE   },
+  -- Paladin
+  { key="PALADIN_HOLY",     label="Holy Paladin",          class="Paladin",      armorType=PLATE   },
+  { key="PALADIN_PROT",     label="Protection Paladin",    class="Paladin",      armorType=PLATE   },
+  { key="PALADIN_RET",      label="Retribution Paladin",   class="Paladin",      armorType=PLATE   },
+  -- Hunter
+  { key="HUNTER_BM",        label="Beast Mastery Hunter",  class="Hunter",       armorType=MAIL    },
+  { key="HUNTER_MM",        label="Marksmanship Hunter",   class="Hunter",       armorType=MAIL    },
+  { key="HUNTER_SV",        label="Survival Hunter",       class="Hunter",       armorType=MAIL    },
+  -- Rogue
+  { key="ROGUE_ASSA",       label="Assassination Rogue",   class="Rogue",        armorType=LEATHER },
+  { key="ROGUE_COMBAT",     label="Combat Rogue",          class="Rogue",        armorType=LEATHER },
+  { key="ROGUE_SUB",        label="Subtlety Rogue",        class="Rogue",        armorType=LEATHER },
+  -- Priest
+  { key="PRIEST_DISC",      label="Discipline Priest",     class="Priest",       armorType=CLOTH   },
+  { key="PRIEST_HOLY",      label="Holy Priest",           class="Priest",       armorType=CLOTH   },
+  { key="PRIEST_SHADOW",    label="Shadow Priest",         class="Priest",       armorType=CLOTH   },
+  -- Death Knight (WotLK+)
+  { key="DK_BLOOD",         label="Blood Death Knight",    class="Death Knight", armorType=PLATE   },
+  { key="DK_FROST",         label="Frost Death Knight",    class="Death Knight", armorType=PLATE   },
+  { key="DK_UNHOLY",        label="Unholy Death Knight",   class="Death Knight", armorType=PLATE   },
+  -- Shaman
+  { key="SHAMAN_ELE",       label="Elemental Shaman",      class="Shaman",       armorType=MAIL    },
+  { key="SHAMAN_ENH",       label="Enhancement Shaman",    class="Shaman",       armorType=MAIL    },
+  { key="SHAMAN_RESTO",     label="Restoration Shaman",    class="Shaman",       armorType=MAIL    },
+  -- Mage
+  { key="MAGE_ARCANE",      label="Arcane Mage",           class="Mage",         armorType=CLOTH   },
+  { key="MAGE_FIRE",        label="Fire Mage",             class="Mage",         armorType=CLOTH   },
+  { key="MAGE_FROST",       label="Frost Mage",            class="Mage",         armorType=CLOTH   },
+  -- Warlock
+  { key="WARLOCK_AFFLICT",  label="Affliction Warlock",    class="Warlock",      armorType=CLOTH   },
+  { key="WARLOCK_DEMO",     label="Demonology Warlock",    class="Warlock",      armorType=CLOTH   },
+  { key="WARLOCK_DESTRO",   label="Destruction Warlock",   class="Warlock",      armorType=CLOTH   },
+  -- Monk (MoP+)
+  { key="MONK_BREW",        label="Brewmaster Monk",       class="Monk",         armorType=LEATHER },
+  { key="MONK_MW",          label="Mistweaver Monk",       class="Monk",         armorType=LEATHER },
+  { key="MONK_WW",          label="Windwalker Monk",       class="Monk",         armorType=LEATHER },
+  -- Druid
+  { key="DRUID_BALANCE",    label="Balance Druid",         class="Druid",        armorType=LEATHER },
+  { key="DRUID_FERAL",      label="Feral Druid",           class="Druid",        armorType=LEATHER },
+  { key="DRUID_GUARDIAN",   label="Guardian Druid",        class="Druid",        armorType=LEATHER },
+  { key="DRUID_RESTO",      label="Restoration Druid",     class="Druid",        armorType=LEATHER },
+}
+-- Fast lookup by key
+local SPEC_BY_KEY = {}
+for _, s in ipairs(SPEC_DATA) do SPEC_BY_KEY[s.key] = s end
+
+--- Get current spec filter key
+-- @return string
+local function GetSpecFilter()
+  return VendorFilterDB.specFilter or "ALL"
+end
+
+--- Set current spec filter key
+-- @param key string
+local function SetSpecFilter(key)
+  VendorFilterDB.specFilter = key
+end
+
+--- Convert spec filter key to user-facing label
+-- @return string
+local function GetSpecFilterLabel()
+  local key = GetSpecFilter()
+  if key == "ALL" then return "All Specs" end
+  local s = SPEC_BY_KEY[key]
+  return s and s.label or key
+end
+
+--- Return the itemClassID and itemSubClassID for an item link (locale-safe).
+-- Uses C_Item.GetItemInfoInstant when available; falls back to subType string matching (enUS).
+-- @param itemLink string|nil
+-- @return number|nil classID, number|nil subClassID
+local function GetItemClassSubClass(itemLink)
+  if not itemLink then return nil, nil end
+  if C_Item and C_Item.GetItemInfoInstant then
+    local _, _, _, _, _, classID, subClassID = C_Item.GetItemInfoInstant(itemLink)
+    return classID, subClassID
+  end
+  -- TBC fallback: parse localized strings (enUS)
+  local _, _, _, _, _, itemType, itemSubType = GetItemInfo(itemLink)
+  if itemType == "Armor" then
+    if itemSubType == "Cloth"   then return 4, 1 end
+    if itemSubType == "Leather" then return 4, 2 end
+    if itemSubType == "Mail"    then return 4, 3 end
+    if itemSubType == "Plate"   then return 4, 4 end
+    return 4, 0  -- Shield, Misc armor, etc.
+  end
+  if itemType == "Weapon" then return 2, nil end
+  return nil, nil
+end
+
+--- Check whether a merchant item passes the active spec filter.
+-- Only Cloth/Leather/Mail/Plate armor is filtered; weapons, jewelry,
+-- trinkets, cloaks, shields, and other non-armor items always pass.
+-- @param itemLink string|nil
+-- @return boolean
+function VF:ItemPassesSpecFilter(itemLink)
+  local specKey = GetSpecFilter()
+  if specKey == "ALL" then return true end
+  local spec = SPEC_BY_KEY[specKey]
+  if not spec then return true end
+  local classID, subClassID = GetItemClassSubClass(itemLink)
+  if classID ~= ITEM_CLASS_ARMOR then return true end   -- weapons, jewelry, etc.
+  if not subClassID or subClassID == 0 then return true end  -- shields, librams, misc armor
+  return subClassID == spec.armorType
+end
+
 --- Get current filter key ("ALL" or INVTYPE_*)
 -- @return string
 local function GetFilter()
@@ -137,15 +260,16 @@ function VF:ItemPasses(itemLink)
 end
 
 -- Recompute filtered vendor indices
---- Build the filtered list of merchant item indices according to current filter
+--- Build the filtered list of merchant item indices according to current slot and spec filters
 function VF:BuildFilteredList()
   local numItems = GetMerchantNumItems() or 0
-  local filter = GetFilter()
-  local showAll = filter == "ALL"
+  local slotAll = GetFilter() == "ALL"
+  local specAll = GetSpecFilter() == "ALL"
+  local allOff  = slotAll and specAll
   local matching = {}
   for i = 1, numItems do
     local link = GetMerchantItemLink(i)
-    if showAll or self:ItemPasses(link) then
+    if allOff or (self:ItemPasses(link) and self:ItemPassesSpecFilter(link)) then
       matching[#matching + 1] = i
     end
   end
@@ -195,7 +319,7 @@ function VF:CreateOverlay()
   if not MerchantFrame then return end
 
   local overlay = CreateFrame("Frame", "VendorFilterOverlay", MerchantFrame)
-  overlay:SetPoint("TOPLEFT", MerchantFrame, "TOPLEFT", 22, -72)
+  overlay:SetPoint("TOPLEFT", MerchantFrame, "TOPLEFT", 22, -90)
   overlay:SetPoint("BOTTOMRIGHT", MerchantFrame, "BOTTOMRIGHT", -30, 86)
 
   local ROW_HEIGHT = 36
@@ -477,14 +601,17 @@ end
 function VF:Refresh()
   if not MerchantFrame or not MerchantFrame:IsShown() then return end
   self:BuildFilteredList()
-  if GetFilter() == "ALL" then
+  if GetFilter() == "ALL" and GetSpecFilter() == "ALL" then
     self:HideOverlay()
   else
     self:ShowOverlay()
   end
-  -- update dropdown label if present
+  -- update dropdown labels if present
   if self.dropdown then
-  UIDropDownMenu_SetText(self.dropdown, "Filter: " .. GetFilterLabel())
+    UIDropDownMenu_SetText(self.dropdown, "Filter: " .. GetFilterLabel())
+  end
+  if self.specDropdown then
+    UIDropDownMenu_SetText(self.specDropdown, "Spec: " .. GetSpecFilterLabel())
   end
 end
 
@@ -512,12 +639,57 @@ local function BuildMenu(frame, level)
   end
 end
 
+-- Spec dropdown menu builder
+--- Build the spec filter dropdown entries (all classes/specs with class headers)
+-- @param frame Frame
+-- @param level number
+local function BuildSpecMenu(frame, level)
+  if not level then level = 1 end
+  local info = UIDropDownMenu_CreateInfo()
+  -- "All Specs" entry at top
+  wipe(info)
+  info.text        = "All Specs"
+  info.arg1        = "ALL"
+  info.func        = function(_, key)
+    SetSpecFilter(key)
+    if MerchantFrame then MerchantFrame.page = 1 end
+    VF:Refresh()
+    CloseDropDownMenus()
+  end
+  info.checked     = (GetSpecFilter() == "ALL")
+  UIDropDownMenu_AddButton(info, level)
+  -- Class headers with specs beneath
+  local lastClass = nil
+  for _, spec in ipairs(SPEC_DATA) do
+    if spec.class ~= lastClass then
+      lastClass = spec.class
+      wipe(info)
+      info.text          = spec.class
+      info.isTitle       = true
+      info.notCheckable  = true
+      UIDropDownMenu_AddButton(info, level)
+    end
+    wipe(info)
+    info.text  = "  " .. spec.label
+    info.arg1  = spec.key
+    info.func  = function(_, key)
+      SetSpecFilter(key)
+      if MerchantFrame then MerchantFrame.page = 1 end
+      VF:Refresh()
+      CloseDropDownMenus()
+    end
+    info.checked = (GetSpecFilter() == spec.key)
+    UIDropDownMenu_AddButton(info, level)
+  end
+end
+
 -- Event handling
 VF:SetScript("OnEvent", function(self, event, ...)
   if event == "ADDON_LOADED" then
     local addon = ...
     if addon == ADDON_NAME then
-      VendorFilterDB.filter = VendorFilterDB.filter or "ALL"
+      VendorFilterDB.filter     = VendorFilterDB.filter     or "ALL"
+      VendorFilterDB.specFilter = VendorFilterDB.specFilter or "ALL"
     end
   elseif event == "MERCHANT_SHOW" or event == "MERCHANT_UPDATE" then
     if event == "MERCHANT_SHOW" then
@@ -533,11 +705,12 @@ VF:RegisterEvent("MERCHANT_SHOW")
 VF:RegisterEvent("MERCHANT_UPDATE")
 
 -- Create the dropdown and attach to MerchantFrame
---- Attach dropdown to MerchantFrame and initialize overlay (once)
+--- Attach dropdowns to MerchantFrame and initialize overlay (once)
 function VF:AttachUI()
   if self.dropdown then return end
   if not MerchantFrame then return end
 
+  -- Slot filter dropdown (row 1)
   local dd = CreateFrame("Frame", "VendorFilter_Dropdown", MerchantFrame, "UIDropDownMenuTemplate")
   dd:SetPoint("TOPLEFT", MerchantFrame, "TOPLEFT", 70, -34)
   UIDropDownMenu_SetWidth(dd, 150)
@@ -545,6 +718,15 @@ function VF:AttachUI()
   UIDropDownMenu_Initialize(dd, function(frame, level) BuildMenu(frame, level) end)
   dd:SetScript("OnShow", function() UIDropDownMenu_SetText(dd, "Filter: " .. GetFilterLabel()) end)
   self.dropdown = dd
+
+  -- Spec filter dropdown (row 2, stacked below slot dropdown)
+  local specDD = CreateFrame("Frame", "VendorFilter_SpecDropdown", MerchantFrame, "UIDropDownMenuTemplate")
+  specDD:SetPoint("TOPLEFT", MerchantFrame, "TOPLEFT", 70, -56)
+  UIDropDownMenu_SetWidth(specDD, 150)
+  UIDropDownMenu_SetText(specDD, "Spec: " .. GetSpecFilterLabel())
+  UIDropDownMenu_Initialize(specDD, function(frame, level) BuildSpecMenu(frame, level) end)
+  specDD:SetScript("OnShow", function() UIDropDownMenu_SetText(specDD, "Spec: " .. GetSpecFilterLabel()) end)
+  self.specDropdown = specDD
 
   self:CreateOverlay()
 end

@@ -1,5 +1,10 @@
 # Changelog
 
+## 0.1.6
+- Added spec filter dropdown: select any class/spec to show only gear of that spec's armor type (Cloth/Leather/Mail/Plate)
+- Weapons, jewelry, trinkets, cloaks, and shields always show regardless of spec filter
+- Spec and slot filters work together; overlay activates when either filter is set
+
 ## 0.1.5
 - Added TBC Classic Anniversary (20505) support alongside MoP Classic (50503)
 
