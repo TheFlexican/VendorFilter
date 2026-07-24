@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.1.8
+- Spec filter dropdown now only shows specs for the player's own class
+- Saved spec filter from a different class is automatically reset to "All Specs" on login
+
 ## 0.1.7
 - Fixed spec filter: now filters by primary stat (Strength/Agility/Intellect) instead of armor type
   - e.g. Windwalker Monk shows only Agility gear, hiding Intellect leather worn by Mistweaver

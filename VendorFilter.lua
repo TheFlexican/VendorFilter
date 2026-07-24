@@ -629,8 +629,38 @@ local function BuildMenu(frame, level)
   end
 end
 
+--- Return only the SPEC_DATA entries that match the player's current class.
+-- Falls back to the full list if UnitClass is unavailable (e.g. loading screen).
+-- @return table
+local function GetPlayerSpecs()
+  if not UnitClass then return SPEC_DATA end
+  local _, classFile = UnitClass("player")  -- e.g. "MONK", "WARRIOR"
+  if not classFile then return SPEC_DATA end
+  -- Map WoW classFile tokens to SPEC_DATA class strings
+  local CLASS_MAP = {
+    WARRIOR      = "Warrior",
+    PALADIN      = "Paladin",
+    HUNTER       = "Hunter",
+    ROGUE        = "Rogue",
+    PRIEST       = "Priest",
+    DEATHKNIGHT  = "Death Knight",
+    SHAMAN       = "Shaman",
+    MAGE         = "Mage",
+    WARLOCK      = "Warlock",
+    MONK         = "Monk",
+    DRUID        = "Druid",
+  }
+  local className = CLASS_MAP[classFile]
+  if not className then return SPEC_DATA end
+  local result = {}
+  for _, s in ipairs(SPEC_DATA) do
+    if s.class == className then result[#result+1] = s end
+  end
+  return result
+end
+
 -- Spec dropdown menu builder
---- Build the spec filter dropdown entries (all classes/specs with class headers)
+--- Build the spec filter dropdown entries for the player's own class only
 -- @param frame Frame
 -- @param level number
 local function BuildSpecMenu(frame, level)
@@ -648,19 +678,10 @@ local function BuildSpecMenu(frame, level)
   end
   info.checked     = (GetSpecFilter() == "ALL")
   UIDropDownMenu_AddButton(info, level)
-  -- Class headers with specs beneath
-  local lastClass = nil
-  for _, spec in ipairs(SPEC_DATA) do
-    if spec.class ~= lastClass then
-      lastClass = spec.class
-      wipe(info)
-      info.text          = spec.class
-      info.isTitle       = true
-      info.notCheckable  = true
-      UIDropDownMenu_AddButton(info, level)
-    end
+  -- Only show specs for the player's own class
+  for _, spec in ipairs(GetPlayerSpecs()) do
     wipe(info)
-    info.text  = "  " .. spec.label
+    info.text  = spec.label
     info.arg1  = spec.key
     info.func  = function(_, key)
       SetSpecFilter(key)
@@ -680,6 +701,16 @@ VF:SetScript("OnEvent", function(self, event, ...)
     if addon == ADDON_NAME then
       VendorFilterDB.filter     = VendorFilterDB.filter     or "ALL"
       VendorFilterDB.specFilter = VendorFilterDB.specFilter or "ALL"
+      -- Reset spec filter if it belongs to a different class than the current player
+      local savedSpec = VendorFilterDB.specFilter
+      if savedSpec ~= "ALL" then
+        local playerSpecs = GetPlayerSpecs()
+        local valid = false
+        for _, s in ipairs(playerSpecs) do
+          if s.key == savedSpec then valid = true; break end
+        end
+        if not valid then VendorFilterDB.specFilter = "ALL" end
+      end
     end
   elseif event == "MERCHANT_SHOW" or event == "MERCHANT_UPDATE" then
     if event == "MERCHANT_SHOW" then
