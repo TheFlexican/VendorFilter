@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.1.7
+- Fixed spec filter: now filters by primary stat (Strength/Agility/Intellect) instead of armor type
+  - e.g. Windwalker Monk shows only Agility gear, hiding Intellect leather worn by Mistweaver
+  - Items with no primary stat (rings, trinkets, cloaks, shields, etc.) always shown
+- Updated all spec primary stats: Holy Paladin=INT, Enh Shaman=AGI, Ele/Resto Shaman=INT, MW Monk=INT, WW/Brew Monk=AGI, etc.
+
 ## 0.1.6
 - Added spec filter dropdown: select any class/spec to show only gear of that spec's armor type (Cloth/Leather/Mail/Plate)
 - Weapons, jewelry, trinkets, cloaks, and shields always show regardless of spec filter

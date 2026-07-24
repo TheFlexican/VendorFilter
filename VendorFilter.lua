@@ -27,62 +27,56 @@ VF.dynamicFilters = nil
 
 -- ============================================================
 -- Spec Filter Data
--- Armor subClassIDs (locale-safe, matches C_Item.GetItemInfoInstant classID=4)
+-- primaryStat: "STR", "AGI", or "INT" — used to filter by GetItemStats
 -- ============================================================
-local CLOTH    = 1
-local LEATHER  = 2
-local MAIL     = 3
-local PLATE    = 4
-local ITEM_CLASS_ARMOR = 4
 
---- All playable class/spec definitions with the armor type each spec wears.
--- armorType = itemSubClassID: 1=Cloth, 2=Leather, 3=Mail, 4=Plate
+--- All playable class/spec definitions with the primary stat each spec scales with.
 local SPEC_DATA = {
   -- Warrior
-  { key="WARRIOR_ARMS",     label="Arms Warrior",          class="Warrior",      armorType=PLATE   },
-  { key="WARRIOR_FURY",     label="Fury Warrior",          class="Warrior",      armorType=PLATE   },
-  { key="WARRIOR_PROT",     label="Protection Warrior",    class="Warrior",      armorType=PLATE   },
+  { key="WARRIOR_ARMS",     label="Arms Warrior",          class="Warrior",      primaryStat="STR" },
+  { key="WARRIOR_FURY",     label="Fury Warrior",          class="Warrior",      primaryStat="STR" },
+  { key="WARRIOR_PROT",     label="Protection Warrior",    class="Warrior",      primaryStat="STR" },
   -- Paladin
-  { key="PALADIN_HOLY",     label="Holy Paladin",          class="Paladin",      armorType=PLATE   },
-  { key="PALADIN_PROT",     label="Protection Paladin",    class="Paladin",      armorType=PLATE   },
-  { key="PALADIN_RET",      label="Retribution Paladin",   class="Paladin",      armorType=PLATE   },
+  { key="PALADIN_HOLY",     label="Holy Paladin",          class="Paladin",      primaryStat="INT" },
+  { key="PALADIN_PROT",     label="Protection Paladin",    class="Paladin",      primaryStat="STR" },
+  { key="PALADIN_RET",      label="Retribution Paladin",   class="Paladin",      primaryStat="STR" },
   -- Hunter
-  { key="HUNTER_BM",        label="Beast Mastery Hunter",  class="Hunter",       armorType=MAIL    },
-  { key="HUNTER_MM",        label="Marksmanship Hunter",   class="Hunter",       armorType=MAIL    },
-  { key="HUNTER_SV",        label="Survival Hunter",       class="Hunter",       armorType=MAIL    },
+  { key="HUNTER_BM",        label="Beast Mastery Hunter",  class="Hunter",       primaryStat="AGI" },
+  { key="HUNTER_MM",        label="Marksmanship Hunter",   class="Hunter",       primaryStat="AGI" },
+  { key="HUNTER_SV",        label="Survival Hunter",       class="Hunter",       primaryStat="AGI" },
   -- Rogue
-  { key="ROGUE_ASSA",       label="Assassination Rogue",   class="Rogue",        armorType=LEATHER },
-  { key="ROGUE_COMBAT",     label="Combat Rogue",          class="Rogue",        armorType=LEATHER },
-  { key="ROGUE_SUB",        label="Subtlety Rogue",        class="Rogue",        armorType=LEATHER },
+  { key="ROGUE_ASSA",       label="Assassination Rogue",   class="Rogue",        primaryStat="AGI" },
+  { key="ROGUE_COMBAT",     label="Combat Rogue",          class="Rogue",        primaryStat="AGI" },
+  { key="ROGUE_SUB",        label="Subtlety Rogue",        class="Rogue",        primaryStat="AGI" },
   -- Priest
-  { key="PRIEST_DISC",      label="Discipline Priest",     class="Priest",       armorType=CLOTH   },
-  { key="PRIEST_HOLY",      label="Holy Priest",           class="Priest",       armorType=CLOTH   },
-  { key="PRIEST_SHADOW",    label="Shadow Priest",         class="Priest",       armorType=CLOTH   },
+  { key="PRIEST_DISC",      label="Discipline Priest",     class="Priest",       primaryStat="INT" },
+  { key="PRIEST_HOLY",      label="Holy Priest",           class="Priest",       primaryStat="INT" },
+  { key="PRIEST_SHADOW",    label="Shadow Priest",         class="Priest",       primaryStat="INT" },
   -- Death Knight (WotLK+)
-  { key="DK_BLOOD",         label="Blood Death Knight",    class="Death Knight", armorType=PLATE   },
-  { key="DK_FROST",         label="Frost Death Knight",    class="Death Knight", armorType=PLATE   },
-  { key="DK_UNHOLY",        label="Unholy Death Knight",   class="Death Knight", armorType=PLATE   },
+  { key="DK_BLOOD",         label="Blood Death Knight",    class="Death Knight", primaryStat="STR" },
+  { key="DK_FROST",         label="Frost Death Knight",    class="Death Knight", primaryStat="STR" },
+  { key="DK_UNHOLY",        label="Unholy Death Knight",   class="Death Knight", primaryStat="STR" },
   -- Shaman
-  { key="SHAMAN_ELE",       label="Elemental Shaman",      class="Shaman",       armorType=MAIL    },
-  { key="SHAMAN_ENH",       label="Enhancement Shaman",    class="Shaman",       armorType=MAIL    },
-  { key="SHAMAN_RESTO",     label="Restoration Shaman",    class="Shaman",       armorType=MAIL    },
+  { key="SHAMAN_ELE",       label="Elemental Shaman",      class="Shaman",       primaryStat="INT" },
+  { key="SHAMAN_ENH",       label="Enhancement Shaman",    class="Shaman",       primaryStat="AGI" },
+  { key="SHAMAN_RESTO",     label="Restoration Shaman",    class="Shaman",       primaryStat="INT" },
   -- Mage
-  { key="MAGE_ARCANE",      label="Arcane Mage",           class="Mage",         armorType=CLOTH   },
-  { key="MAGE_FIRE",        label="Fire Mage",             class="Mage",         armorType=CLOTH   },
-  { key="MAGE_FROST",       label="Frost Mage",            class="Mage",         armorType=CLOTH   },
+  { key="MAGE_ARCANE",      label="Arcane Mage",           class="Mage",         primaryStat="INT" },
+  { key="MAGE_FIRE",        label="Fire Mage",             class="Mage",         primaryStat="INT" },
+  { key="MAGE_FROST",       label="Frost Mage",            class="Mage",         primaryStat="INT" },
   -- Warlock
-  { key="WARLOCK_AFFLICT",  label="Affliction Warlock",    class="Warlock",      armorType=CLOTH   },
-  { key="WARLOCK_DEMO",     label="Demonology Warlock",    class="Warlock",      armorType=CLOTH   },
-  { key="WARLOCK_DESTRO",   label="Destruction Warlock",   class="Warlock",      armorType=CLOTH   },
+  { key="WARLOCK_AFFLICT",  label="Affliction Warlock",    class="Warlock",      primaryStat="INT" },
+  { key="WARLOCK_DEMO",     label="Demonology Warlock",    class="Warlock",      primaryStat="INT" },
+  { key="WARLOCK_DESTRO",   label="Destruction Warlock",   class="Warlock",      primaryStat="INT" },
   -- Monk (MoP+)
-  { key="MONK_BREW",        label="Brewmaster Monk",       class="Monk",         armorType=LEATHER },
-  { key="MONK_MW",          label="Mistweaver Monk",       class="Monk",         armorType=LEATHER },
-  { key="MONK_WW",          label="Windwalker Monk",       class="Monk",         armorType=LEATHER },
+  { key="MONK_BREW",        label="Brewmaster Monk",       class="Monk",         primaryStat="AGI" },
+  { key="MONK_MW",          label="Mistweaver Monk",       class="Monk",         primaryStat="INT" },
+  { key="MONK_WW",          label="Windwalker Monk",       class="Monk",         primaryStat="AGI" },
   -- Druid
-  { key="DRUID_BALANCE",    label="Balance Druid",         class="Druid",        armorType=LEATHER },
-  { key="DRUID_FERAL",      label="Feral Druid",           class="Druid",        armorType=LEATHER },
-  { key="DRUID_GUARDIAN",   label="Guardian Druid",        class="Druid",        armorType=LEATHER },
-  { key="DRUID_RESTO",      label="Restoration Druid",     class="Druid",        armorType=LEATHER },
+  { key="DRUID_BALANCE",    label="Balance Druid",         class="Druid",        primaryStat="INT" },
+  { key="DRUID_FERAL",      label="Feral Druid",           class="Druid",        primaryStat="AGI" },
+  { key="DRUID_GUARDIAN",   label="Guardian Druid",        class="Druid",        primaryStat="AGI" },
+  { key="DRUID_RESTO",      label="Restoration Druid",     class="Druid",        primaryStat="INT" },
 }
 -- Fast lookup by key
 local SPEC_BY_KEY = {}
@@ -109,32 +103,29 @@ local function GetSpecFilterLabel()
   return s and s.label or key
 end
 
---- Return the itemClassID and itemSubClassID for an item link (locale-safe).
--- Uses C_Item.GetItemInfoInstant when available; falls back to subType string matching (enUS).
+--- Return the item's primary stat family as "STR", "AGI", "INT", or nil (neutral).
+-- Uses GetItemStats which returns locale-safe global keys (ITEM_MOD_*_SHORT).
 -- @param itemLink string|nil
--- @return number|nil classID, number|nil subClassID
-local function GetItemClassSubClass(itemLink)
-  if not itemLink then return nil, nil end
-  if C_Item and C_Item.GetItemInfoInstant then
-    local _, _, _, _, _, classID, subClassID = C_Item.GetItemInfoInstant(itemLink)
-    return classID, subClassID
-  end
-  -- TBC fallback: parse localized strings (enUS)
-  local _, _, _, _, _, itemType, itemSubType = GetItemInfo(itemLink)
-  if itemType == "Armor" then
-    if itemSubType == "Cloth"   then return 4, 1 end
-    if itemSubType == "Leather" then return 4, 2 end
-    if itemSubType == "Mail"    then return 4, 3 end
-    if itemSubType == "Plate"   then return 4, 4 end
-    return 4, 0  -- Shield, Misc armor, etc.
-  end
-  if itemType == "Weapon" then return 2, nil end
-  return nil, nil
+-- @return string|nil
+local _statScratch = {}
+local function GetItemPrimaryStat(itemLink)
+  if not itemLink then return nil end
+  wipe(_statScratch)
+  if not GetItemStats then return nil end
+  GetItemStats(itemLink, _statScratch)
+  local hasSTR = (_statScratch["ITEM_MOD_STRENGTH_SHORT"]    or 0) > 0
+  local hasAGI = (_statScratch["ITEM_MOD_AGILITY_SHORT"]     or 0) > 0
+  local hasINT = (_statScratch["ITEM_MOD_INTELLECT_SHORT"]   or 0) > 0
+  if hasSTR and not hasAGI and not hasINT then return "STR" end
+  if hasAGI and not hasSTR and not hasINT then return "AGI" end
+  if hasINT and not hasSTR and not hasAGI then return "INT" end
+  -- Item has multiple primary stats or none → treat as neutral (always pass)
+  return nil
 end
 
 --- Check whether a merchant item passes the active spec filter.
--- Only Cloth/Leather/Mail/Plate armor is filtered; weapons, jewelry,
--- trinkets, cloaks, shields, and other non-armor items always pass.
+-- Items are filtered by their primary stat (STR/AGI/INT).
+-- Items with no primary stat (rings, trinkets, cloaks, weapons without a main stat, etc.) always pass.
 -- @param itemLink string|nil
 -- @return boolean
 function VF:ItemPassesSpecFilter(itemLink)
@@ -142,10 +133,9 @@ function VF:ItemPassesSpecFilter(itemLink)
   if specKey == "ALL" then return true end
   local spec = SPEC_BY_KEY[specKey]
   if not spec then return true end
-  local classID, subClassID = GetItemClassSubClass(itemLink)
-  if classID ~= ITEM_CLASS_ARMOR then return true end   -- weapons, jewelry, etc.
-  if not subClassID or subClassID == 0 then return true end  -- shields, librams, misc armor
-  return subClassID == spec.armorType
+  local primary = GetItemPrimaryStat(itemLink)
+  if primary == nil then return true end   -- neutral item, always show
+  return primary == spec.primaryStat
 end
 
 --- Get current filter key ("ALL" or INVTYPE_*)
